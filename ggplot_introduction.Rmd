@@ -21,6 +21,9 @@ The data and the RStudio Notebook for this tutorial [are on Github](https://gith
 Packages are extensions to the R language that make it easier to accomplish certain tasks in R. The ggplot2 package was created to help you make flexible data visualisations in R: you tell it what data to use, how to map variables to visual features, add extra layers to a visualisation and add styling to your chart.
 
 So the first thing we do is loading the ggplot2 package:
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
 
 ```{r}
 library(ggplot2)
@@ -132,7 +135,9 @@ ggplot(vict, aes(TX_ROAD_USR_TYPE_DESCR_NL)) +
 That is not really readable, so let's fix that by rotating the chart 90 degrees with coord_flip(), so we'll have non-overlapping, horizontal category labels.
 
 ```{r}
-ggplot(vict, aes(TX_ROAD_USR_TYPE_DESCR_NL)) + geom_bar() + coord_flip()
+ggplot(vict, aes(TX_ROAD_USR_TYPE_DESCR_NL)) +
+  geom_bar() +
+  coord_flip()
 ```
 
 'Personenauto' (passenger car) and 'Fiets' (bicycle) are the most common road user types involved in traffic accidents.
@@ -142,7 +147,8 @@ We want to sort the bars and also add data labels to further improve the legibil
 ```{r}
 vict.byusrtype <- group_by(vict, TX_ROAD_USR_TYPE_DESCR_NL) %>% summarise(total = n())
 head(vict.byusrtype)
-ggplot(vict.byusrtype, aes(x = TX_ROAD_USR_TYPE_DESCR_NL, y = total)) + geom_col()
+ggplot(vict.byusrtype, aes(x = TX_ROAD_USR_TYPE_DESCR_NL, y = total)) +
+  geom_col()
 ```
 
 Notice that we changed from `geom_bar` to `geom_col`. `geom_bar` does the counting for us, while with `geom_col` you can tell ggplot which numerical values to use to map to the height of the columns. That's why in `aes` we specified to use the `total` for `y` (which determines the height of the columns).
@@ -300,7 +306,7 @@ Once you went up the learning curve, ggplot2 can help you to take a look at your
 
 ggplot2 can be extended with other packages (eg from the Tidyverse to slice and dice your data, or geospatial packages for making maps). There are also [plugins for ggplot](http://www.ggplot2-exts.org/gallery/) for working with specific data ([like graph data](https://github.com/thomasp85/ggraph)), for [animating your plots](https://github.com/dgrtwo/gganimate), [making them interactive](https://github.com/davidgohel/ggiraph/) or for making specific visualisations ([like alluvial diagrams](https://github.com/corybrunson/ggalluvial)).
 
-ggplot output can also be styled very flexibly with [plot theming](http://ggplot2.tidyverse.org/reference/theme.html). Generated visualisations can then be saved to different file formats with `[ggsave](http://ggplot2.tidyverse.org/reference/ggsave.html)`.
+ggplot output can also be styled very flexibly with [plot theming](http://ggplot2.tidyverse.org/reference/theme.html). Generated visualisations can then be saved to different file formats with [ggsave](http://ggplot2.tidyverse.org/reference/ggsave.html).
 
 ##More resources
 
