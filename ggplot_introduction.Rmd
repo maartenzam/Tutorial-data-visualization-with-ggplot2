@@ -6,70 +6,78 @@ output:
   html_notebook: default
 ---
 
-This is an introduction to the [ggplot2](http://ggplot2.tidyverse.org/) package of R, by [Maarten Lambrechts](https://www.twitter.com/maartenzam). It was used during workshop during [Inspirational afternoon “Datavisualisation in Sociology and Social Sciences”](http://www.sociologie.be/datavisualisatie/), held on 12 December 2017 in Brussels.
+This is an introduction to the [ggplot2](http://ggplot2.tidyverse.org/) package of R. It was used during workshop during [Inspirational afternoon “Datavisualisation in Sociology and Social Sciences”](http://www.sociologie.be/datavisualisatie/), held on 12 December 2017 in Brussels.
 
-Goal of the tutorial is to show how the ggplot2 package can be used to inspect and explore data in a visual way. This tutorial is not an introduction to [R](https://www.r-project.org/), [RStudio](https://www.rstudio.com/) and the [tidyverse](https://www.tidyverse.org/).
+Goal of the tutorial is to show how the ggplot2 package can be used to inspect and explore data in a visual way. This tutorial is not an introduction to [R](https://www.r-project.org/), [RStudio](https://www.rstudio.com/) or the [tidyverse](https://www.tidyverse.org/).
 
 ##Getting started
 
 The easiest way to get started with R and ggplot2 is to [download and install RStudio](https://www.rstudio.com/products/rstudio/download/). RStudio makes working with R much easier in many ways. To get started with R, I can highly recommend the free Datacamp course '[Introduction to R](https://www.datacamp.com/courses/free-introduction-to-r)'. Datacamp also has a [course on RStudio](https://www.datacamp.com/courses/working-with-the-rstudio-ide-part-1), which you can start (but not finish) for free.
 
+The data and the RStudio Notebook for this tutorial [are on Github](https://github.com/maartenzam/Tutorial-data-visualization-with-ggplot2).
+
 ##Loading the packages
 
 Packages are extensions to the R language that make it easier to accomplish certain tasks in R. The ggplot2 package was created to help you make flexible data visualisations in R: you tell it what data to use, how to map variables to visual features, add extra layers to a visualisation and add styling to your chart.
 
-So the first thing we do is loading the ggplot2 package
+So the first thing we do is loading the ggplot2 package:
 
 ```{r}
 library(ggplot2)
 ```
 
 ##The data
-The data for this demo are taken from [this page](http://statbel.fgov.be/nl/statistieken/opendata/datasets/circulation_et_transport/victimes/) and contains details on all people in Belgium that suffered injuries or died as a result of traffic accidents and the circumstances in which these accidents occured. The data is offered as separate files, but I combined them, so you can load all the data in one step. I only kept the data of the 5 most recent years as to not make the data file too large. I also removed the columns containing text in French and only kept the Dutch descriptions to further reduce the file size.
 
-With 'head', we can take a peek at the first 6 rows in the data.
+The data for this demo are taken from [this page](http://statbel.fgov.be/nl/statistieken/opendata/datasets/circulation_et_transport/victimes/) and contains details on all people in Belgium that suffered injuries or died as a result of traffic accidents and the circumstances in which these accidents occured.
+
+The data is offered as separate files, but I combined them, so you can load all the data in one step. I only kept the data of the 5 most recent years as to not make the data file too large. I also removed the columns containing text in French and only kept the Dutch descriptions to further reduce the file size.
+
+With `head`, we can take a peek at the first 6 rows in the data.
 
 ```{r}
 vict <- read.csv("victims.csv")
 head(vict)
 ```
 
-Use the little arrow on the right to inspect more columns. As you can see, a lot of data is registered when someone gets involved in a traffic accident. Let's see what we can learn from the data.
+As you can see, a lot of data is registered when someone gets involved in a traffic accident. Let's see what we can learn from the data.
 
 ##The first plot
 
-Time to make the first plot. The ggplot syntax takes a little time to get used to, so let's start small. Let's make a histogram of the age of the traffic accident victims.
+Time to make the first plot. The ggplot syntax takes a little time to get used to, so let's start small: let's make a histogram of the age of the traffic accident victims.
 
-NOTE: The data doesn't contain the exact age of the accident victims. We are using a column in the data that contains a numerical code closely related to the age.
+NOTE: The data doesn't contain the exact age of the accident victims. We are using a column in the data that contains a numerical code closely related to the actual age.
 
 ```{r}
-ggplot(vict, aes(CD_AGE_CLS)) + geom_histogram()
+ggplot(vict, aes(CD_AGE_CLS)) +
+  geom_histogram()
 ```
 
 Nice: our first ggplot chart! Let's explore what's going on here:
 
-- `vict` is the table ('dataframe' in R terminology) that contains the data. We put it as the first parameter in the ggplot function.
+- `vict` is the table ('dataframe' in R terminology) that contains the data that we loaded in. We put it as the first parameter in the ggplot function.
 - the column containing the age of the victims is called `CD_AGE_CLS`. We put it in the `aes()` of the ggplot function. `aes()` stands for "aesthetics" and you could read the code as "map the variable `CD_AGE_CLS` to the aeshetics of the plot"
-- after the main ggplot function, we add the type of chart we would like to make. In the ggplot language, this is a geometry. So we add a histogram geometry to the plot.
+- after the main ggplot function, we add the type of chart we would like to make. In the ggplot language, this is called a geometry. So we add a histogram geometry to the plot.
 
 From the histogram, we see that the distribution of traffic victims is skewed towards younger people, with a peak around 30 years.
 
-We also see a weird peak to the left of the histogram. We take a look at these records in the data by using `filter' from the [dplyr package](http://dplyr.tidyverse.org/).
+We also see a weird peak to the left of the histogram. We take a look at these records in the data by using `filter' from the handy [dplyr package](http://dplyr.tidyverse.org/).
 
 ```{r}
 library(dplyr)
 head(filter(vict, CD_AGE_CLS < 3))
 ```
 
-When you check the `TX_AGE_CLS_DESCR_NL` column of these records, you'll notice they contain the value 'Niet beschikbaar' ('Not available'). Looks like that for one reason or another, some records don't contain the full data and that they got assigned a value of 2 for the `CD_AGE_CLS` variable.
+When you check the `TX_AGE_CLS_DESCR_NL` column of these records, you'll notice they contain the value 'Niet beschikbaar' ('Not available'). So some records have missing values and got assigned a value of 2 for the `CD_AGE_CLS` variable.
 
-We'll ignore that for now, but we've discovered an inconsistency in the data by making a ggplot visulisation. Not bad.
+We'll ignore that for now, but we've already discovered an inconsistency in the data by making a ggplot visulisation!
 
 ##Man vs women
-Let's take the same histogram, but let's introduce another variable: the gender of the victims. This is stored in the `CD_SEX` column.
+
+Let's take the same histogram and introduce an extra variable: the gender of the victims. This is stored in the `CD_SEX` column.
 
 ```{r}
-ggplot(vict, aes(CD_AGE_CLS, fill = CD_SEX)) + geom_histogram()
+ggplot(vict, aes(CD_AGE_CLS, fill = CD_SEX)) +
+  geom_histogram()
 ```
 
 We mapped the gender column to the fill colour aesthetic of the histogram. ggplot added a color legend for us, and as you can see we have one color for females, one for males and two extra colors. On inspecting the data, the two extra colours seem to represent missing values. We filter these records out:
@@ -78,14 +86,14 @@ We mapped the gender column to the fill colour aesthetic of the histogram. ggplo
 vict <- filter(vict, CD_SEX != " " & CD_SEX != "")
 ```
 
-
 We also got a warning: ggplot tells us that we are using the default of 30 bins, and that we could pick a better value for `binwidth`. Let's do that, and set the width of the histogram bins to 1:
 
 ```{r}
-ggplot(vict, aes(CD_AGE_CLS, fill = CD_SEX)) + geom_histogram(binwidth = 1)
+ggplot(vict, aes(CD_AGE_CLS, fill = CD_SEX)) +
+  geom_histogram(binwidth = 1)
 ```
 
-A pattern emerges: for values 22, 33, 44, ... the the data contains a lot less records then for other values. We are going to also ignore this here.
+A pattern emerges: for values 22, 33, 44, ... the the data contains a lot less records then for other values. We are going to ignore this inconsistency in the data too.
 
 The stacking of the bars for men and women make comparisons difficult. Let's make 2 separate histograms. We use `facet_wrap()' for that and tell it to make seperate histograms for each sex:
 
@@ -98,43 +106,48 @@ ggplot(vict, aes(x = CD_AGE_CLS, fill = CD_SEX)) +
 Apart from the height of the histograms, the distributions seem to be quite similar between men and women. But using another geometry (the `geom_density`, which generates density estimates), we can highlight the relative differences:
 
 ```{r}
-ggplot(filter(vict, CD_SEX != " "), aes(x = CD_AGE_CLS, fill = CD_SEX)) + geom_density(alpha = 0.5)
+ggplot(filter(vict, CD_SEX != " "), aes(x = CD_AGE_CLS, fill = CD_SEX)) +
+  geom_density(alpha = 0.5)
 ```
 
 The density plots are plotted on top of each other, but by using some transparency (the `alpha` in `geom_density`) we can see that girls and older women are more likely to get involved in accidents, while men between 18 and 65 are more likely to get involved in accidents then women of the same age.
 
-Facetting is a very powerfull technique in visual data exploration. It allows you to spot relations accross multiple dimensions. Here we add the extra dimension of the type of victim (conductor vs passanger).
+Facetting is a very powerfull technique in visual data exploration. It allows you to spot relations accross multiple dimensions. Here we add the extra dimension of the type of victim (driver vs passanger).
+
 ```{r}
 ggplot(vict, aes(x = CD_AGE_CLS, fill = CD_SEX)) +
   geom_histogram(binwidth = 1) +
-  facet_grid(CD_SEX~TX_VCT_TYPE_DESCR_NL)
+  facet_grid(CD_SEX ~ TX_VCT_TYPE_DESCR_NL)
 ```
 
 ##Road user types
+
 In the same way that ggplot does the counting for us when it generates a histogram, it also does the counting for us when making a bar chart. So we change the numerical variable we used for the histograms (victims' age) to a categorical variable (the road user type):
 
 ```{r}
-ggplot(vict, aes(TX_ROAD_USR_TYPE_DESCR_NL)) + geom_bar()
+ggplot(vict, aes(TX_ROAD_USR_TYPE_DESCR_NL)) +
+  geom_bar()
 ```
 
-That is not really readable, so let's fix that by rotating the chart 90 degrees with coord_flip().
+That is not really readable, so let's fix that by rotating the chart 90 degrees with coord_flip(), so we'll have non-overlapping, horizontal category labels.
 
 ```{r}
 ggplot(vict, aes(TX_ROAD_USR_TYPE_DESCR_NL)) + geom_bar() + coord_flip()
 ```
+
 'Personenauto' (passenger car) and 'Fiets' (bicycle) are the most common road user types involved in traffic accidents.
 
 We want to sort the bars and also add data labels to further improve the legibility of the chart. The easiest way to do this, is to create a new dataframe containing the data we need. So we are going to take the counting out of the hands of ggplot and do it ourselves. We group the victims by road user type and then count the number of victims in each group.
-
 
 ```{r}
 vict.byusrtype <- group_by(vict, TX_ROAD_USR_TYPE_DESCR_NL) %>% summarise(total = n())
 head(vict.byusrtype)
 ggplot(vict.byusrtype, aes(x = TX_ROAD_USR_TYPE_DESCR_NL, y = total)) + geom_col()
 ```
-Notice that we changed from `geom_bar` to `geom_col`. `geom_bar` does the counting for us, with `geom_col` you can tell ggplot which numerical values to use to map to the height of the columns. That's why in `aes` we specified to use the `total` for `y` (which determines the height of the columns).
 
-Now let's flip the chart again, reorder the bars by `total` add the data labels with an extra geometry: `geom_text`.
+Notice that we changed from `geom_bar` to `geom_col`. `geom_bar` does the counting for us, while with `geom_col` you can tell ggplot which numerical values to use to map to the height of the columns. That's why in `aes` we specified to use the `total` for `y` (which determines the height of the columns).
+
+Now let's flip the chart again, reorder the bars by `total` and add the data labels with an new geometry: `geom_text`.
 
 ```{r}
 ggplot(vict.byusrtype, aes(x = reorder(TX_ROAD_USR_TYPE_DESCR_NL, total), y = total)) +
@@ -142,18 +155,21 @@ ggplot(vict.byusrtype, aes(x = reorder(TX_ROAD_USR_TYPE_DESCR_NL, total), y = to
   geom_text(aes(label = total)) + 
   coord_flip()
 ```
+
 Notice that `geom_text` also needs `x` and `y` coordinates to plot the data labels in the correct position. If these are not specified, `geom_text` "inherits" these from the `aes` specified in the main ggplot function. So geometry layers in a ggplot visualisation can all share the same aesthetics or they can use their own by overriding the "default" aesthetics.
 
 ##Time
 
 Let's take a look at what time of the day people get involved in traffic accidents.
+
 ```{r}
 vict.byhour <- group_by(vict, DT_HOUR) %>% summarise(total = n())
 ggplot(vict.byhour, aes(x = DT_HOUR, y = total)) +
   geom_line() +
   geom_point()
 ```
-Morning and evening rush hours can easily spotted. We used two new geometries here: `geom_line` and `geom_point`. Both inherit the x and y from the main aesthetics.
+
+Morning and evening rush hours can be easily spotted. We used two new geometries here: `geom_line` and `geom_point`. Both inherit the `x` and y `from` the main aesthetics.
 
 Now let's compare weekdays with days in the weekend.
 
@@ -162,12 +178,15 @@ vict.byhourweekday <- group_by(vict, DT_HOUR, TX_DAY_OF_WEEK_DESCR_NL) %>% summa
 ggplot(vict.byhourweekday, aes(x = DT_HOUR, y = total, color = TX_DAY_OF_WEEK_DESCR_NL)) +
   geom_line()
 ```
+
 We can use another geometry (`geom_area`) and some facetting to more clearly show that the main differences between weekdays and weekends are the early morning hours (more victims in weekends) and the morning rush hour (less victims in weekends).
+
 ```{r}
 ggplot(vict.byhourweekday, aes(x = DT_HOUR, y = total, fill = TX_DAY_OF_WEEK_DESCR_NL)) +
   geom_area() +
   facet_wrap(~TX_DAY_OF_WEEK_DESCR_NL)
 ```
+
 We can do the same for the 5 years where we have data for. In order to do this, we have to extract the year from the column that contains the date. We use `mutate` to calculate a new column.
 
 ```{r}
@@ -175,6 +194,7 @@ vict.byhouryear <- mutate(vict, year = format(as.Date(DT_DAY, format="%Y-%m-%d")
 vict.byhouryear <- group_by(vict.byhouryear, DT_HOUR, year) %>% summarise(total = n())
 ggplot(vict.byhouryear, aes(x = DT_HOUR, y = total, color = year)) + geom_line()
 ```
+
 Patterns for all 5 years are similar, but we see a big shift downwards between 2012 and 2013.
 
 One more: ligting conditions by hour of day.
@@ -184,16 +204,19 @@ vict.byhour <- group_by(vict, DT_HOUR, TX_LIGHT_COND_DESCR_NL) %>% summarise(tot
 ggplot(vict.byhour, aes(x = DT_HOUR, y = total, fill = TX_LIGHT_COND_DESCR_NL)) +
   geom_area()
 ```
-Note that stacking can make it hard to interpret trends in individual categories. Facetting or other geometries (like `geom_line`) can overcome this.
+
+Note that stacking can make it hard to interpret trends in individual categories. The use of facets or other geometries (like `geom_line`) can overcome this.
 
 ##Heatmap of road user types
 
-Let's combine the road user type and the hour of day to spot trends for each road user type category. We use `geom_tile` for to do that. 
+Let's combine the road user type and the hour of day to spot trends for each road user type category. We use `geom_tile` to do that. 
 
 ```{r}
 vict.byhourtype <- group_by(vict, TX_ROAD_USR_TYPE_DESCR_NL, DT_HOUR) %>% summarise(total = n())
-ggplot(vict.byhourtype, aes(x = DT_HOUR, y = TX_ROAD_USR_TYPE_DESCR_NL, fill = total)) + geom_tile()
+ggplot(vict.byhourtype, aes(x = DT_HOUR, y = TX_ROAD_USR_TYPE_DESCR_NL, fill = total)) +
+  geom_tile()
 ```
+
 Hm, that's not very informative: we can only see some trends for cars and bicycles. Becaus of their much higher frequencies, they obscure the daily trend of the other road user types.
 
 So we need relative numbers for each category. And let's use the viridis color scale for the same plot:
@@ -205,6 +228,7 @@ ggplot(vict.byhourtype, aes(x = DT_HOUR, y = TX_ROAD_USR_TYPE_DESCR_NL, fill = r
   geom_tile() +
   scale_fill_viridis(direction = -1)
 ```
+
 So people riding horses ('Ruiter') don't get involved in accidents during the night, but especially around 4-5 pm :-)
 
 ##Seasonality by road user types
@@ -218,34 +242,48 @@ ggplot(vict.bymonthtype, aes(x = month, y = total, group = TX_ROAD_USR_TYPE_DESC
   facet_wrap(~TX_ROAD_USR_TYPE_DESCR_NL, scales = "free")
 ```
 
-
 ##Map
 
-Let's make a map now. We start with a shapefile of all the 589 Belgian municipalities and convert it to somehing ggplot2 can work with with the `tidy` function of the broom package. We need some extra packages to be able to work with the geospatial data.
+The municipality where accidents occured is also present in the data, so we can make a maps too.
+
+We start with a shapefile (a geographical file format) of all the 589 Belgian municipalities and convert it to something ggplot2 can work with. We use the `tidy` function from the [broom](https://cran.r-project.org/web/packages/broom/index.html) package. We also need some extra packages to load the shapefile correctly in R.
 
 ```{r}
 library(rgeos)
 library(maptools)
 library(broom)
 
+##readShapeSpatial reads the shapefile and loads into R
 mun <- readShapeSpatial("geodata/municip_simp.shp")
+
+##The tidy function takes the loaded geodata and converts it into a dataframe that can be plugged into ggplot. We make sure that every municipality is identified by its unique code (the "NISCODE") and we make a new column in the dataframe (called "id") with that code. We will use this code to join data to the data frame with the municipalities
 mun.tidy <- tidy(mun, region = "NISCODE") %>% mutate(id = as.numeric(id))
 
-ggplot() + geom_polygon(data = mun.tidy, aes(x = long, y = lat, group = group))
+ggplot() + 
+  geom_polygon(data = mun.tidy, aes(x = long, y = lat, group = group))
 ```
+
 Now let's calculate the total number of deadly victims of traffic accidents for every municipality and plot that on the map. We also set the the map to have equal coordinate scales for x and y (the map data uses the Lambert72 projections, which has meters as units for the coordinates).
 
 NOTE: it is actually a bad idea to use absolute numbers on these kind of maps. Numbers should be scaled (eg to the population or the road length in every municipality).
 
 ```{r}
+##The CD_MUNTY_REFNIS contains the same codes to identify a municipality as the geographical data
 vict.deads <- group_by(vict, CD_MUNTY_REFNIS) %>% summarise(deads = sum(MS_DEAD_30_DAYS))
+
+##We change the column names of the new data frame. The column containing the municipality code becomes "id", so we can join the data to the map data
 colnames(vict.deads) <- c("id", "deads")
+
 mun.deads <- left_join(mun.tidy, vict.deads, by = "id")
-ggplot() + geom_polygon(data = mun.deads, aes(x = long, y = lat, group = group, fill = deads)) +
+
+ggplot() +
+  geom_polygon(data = mun.deads, aes(x = long, y = lat, group = group, fill = deads)) +
   scale_fill_viridis(direction = -1)  +
   coord_equal()
 ```
+
 We can also facet maps:
+
 ```{r}
 vict.deadsyear <- mutate(vict, year = format(as.Date(DT_DAY, format="%Y-%m-%d"),"%Y")) %>% group_by(CD_MUNTY_REFNIS, year) %>% summarise(deads = sum(MS_DEAD_30_DAYS))
 colnames(vict.deadsyear) <- c("id", "year", "deads")
@@ -256,23 +294,21 @@ ggplot() + geom_polygon(data = mun.deadsyear, aes(x = long, y = lat, group = gro
   facet_wrap(~year)
 ```
 
-##Conclusion
-Once you went up the learning curve is taken, ggplot2 can help you to take a look at your data from very different angles. By mapping variables to different aesthetics and by using different geometries anomalies, trends and outliers will become visible in your data.
+##Wrap up
 
-ggplot2 can be extended with other packages (eg from the Tidyverse to slice and dice your data or geospatial packages for making maps). There are also [plugins for ggplot](http://www.ggplot2-exts.org/gallery/) for working with specific data ([like graph data](https://github.com/thomasp85/ggraph)), for [animating your plots](https://github.com/dgrtwo/gganimate), [making them interactive](https://github.com/davidgohel/ggiraph/) or for making specific visualisations ([like alluvial diagrams](https://github.com/corybrunson/ggalluvial))
+Once you went up the learning curve, ggplot2 can help you to take a look at your data from possible angles. By mapping variables to different aesthetics and by using different geometries, you'll be able to spot anomalies, trends and outliers in your data.
+
+ggplot2 can be extended with other packages (eg from the Tidyverse to slice and dice your data, or geospatial packages for making maps). There are also [plugins for ggplot](http://www.ggplot2-exts.org/gallery/) for working with specific data ([like graph data](https://github.com/thomasp85/ggraph)), for [animating your plots](https://github.com/dgrtwo/gganimate), [making them interactive](https://github.com/davidgohel/ggiraph/) or for making specific visualisations ([like alluvial diagrams](https://github.com/corybrunson/ggalluvial)).
+
+ggplot output can also be styled very flexibly with [plot theming](http://ggplot2.tidyverse.org/reference/theme.html). Generated visualisations can then be saved to different file formats with `[ggsave](http://ggplot2.tidyverse.org/reference/ggsave.html)`.
 
 ##More resources
+
 [Data Visualization for Social Science: A practical introduction with R and ggplot2](http://socviz.co/)
-[Exploratory Data Analysis (adding visualization to the chain)](http://www.cbcb.umd.edu/~hcorrada/IntroDataSci/lectures/EDA2.html#/)
+
 [Datacamp course 'Data Visualization with ggplot2'](https://www.datacamp.com/courses/data-visualization-with-ggplot2-1)
 
-##More
-Networks:  ggraph
+[Data Visualization with ggplot2: Cheat Sheet](https://github.com/rstudio/cheatsheets/blob/master/data-visualization-2.1.pdf)
 
 
-##Conclusion
-
-Needs a lot of practice
-But: very flexible
-  reproducable
   
