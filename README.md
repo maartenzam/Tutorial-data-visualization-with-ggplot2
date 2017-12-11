@@ -1,0 +1,3 @@
+This is an introduction to the [ggplot2](http://ggplot2.tidyverse.org/) package of R, by [Maarten Lambrechts](https://www.twitter.com/maartenzam). It was used during workshop during [Inspirational afternoon “Datavisualisation in Sociology and Social Sciences”](http://www.sociologie.be/datavisualisatie/), held on 12 December 2017 in Brussels.
+
+Goal of the tutorial is to show how the ggplot2 package can be used to inspect and explore data in a visual way. This tutorial is not an introduction to [R](https://www.r-project.org/), [RStudio](https://www.rstudio.com/) and the [tidyverse](https://www.tidyverse.org/).
