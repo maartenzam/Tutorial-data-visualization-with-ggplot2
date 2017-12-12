@@ -1,9 +1,9 @@
 ---
 title: "Data visualization with R and ggplot2"
 output:
+  html_notebook: default
   html_document:
     theme: journal
-  html_notebook: default
 ---
 
 This is an introduction to the [ggplot2](http://ggplot2.tidyverse.org/) package of R. It was used during workshop during [Inspirational afternoon “Datavisualisation in Sociology and Social Sciences”](http://www.sociologie.be/datavisualisatie/), held on 12 December 2017 in Brussels.
@@ -171,11 +171,11 @@ Let's take a look at what time of the day people get involved in traffic acciden
 ```{r}
 vict.byhour <- group_by(vict, DT_HOUR) %>% summarise(total = n())
 ggplot(vict.byhour, aes(x = DT_HOUR, y = total)) +
-  geom_line() +
-  geom_point()
+  geom_point() +
+  geom_line()
 ```
 
-Morning and evening rush hours can be easily spotted. We used two new geometries here: `geom_line` and `geom_point`. Both inherit the `x` and y `from` the main aesthetics.
+Morning and evening rush hours can be easily spotted. We used two new geometries here: `geom_line` and `geom_point`. Both inherit the `x` and `y` from the main aesthetics.
 
 Now let's compare weekdays with days in the weekend.
 
